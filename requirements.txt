@@ -1,0 +1,5 @@
+streamlit==1.26.0
+pandas==2.0.3
+transformers==4.35.0
+peft==0.7.0
+torch==2.0.1  # Ensure compatibility with the model
