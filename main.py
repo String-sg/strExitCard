@@ -1,5 +1,6 @@
 import streamlit as st
 from groq import Groq
+from st_copy_to_clipboard import st_copy_to_clipboard
 import urllib.parse
 import os
 import uuid
@@ -118,70 +119,46 @@ if st.button("Generate Questions"):
 
 # Function to copy response to clipboard
 def copy_to_clipboard_script(response):
-    sanitized_response = html.escape(response)
+    sanitized_response = html.escape(response).replace("\n", "\\n").replace("\r", "\\r")
     return f"""
     <script>
     function copyToClipboard() {{
-        navigator.clipboard.writeText("{sanitized_response}");
-        alert('Copied to clipboard!');
+        navigator.clipboard.writeText("{sanitized_response}")
+        .then(() => {{
+            alert('Copied to clipboard!');
+        }})
+        .catch(err => {{
+            console.error('Failed to copy: ', err);
+        }});
     }}
     </script>
     """
 
 
-# Share and Feedback Section
-st.markdown("---")
+# Footer and Feedback Section
 
-# Telegram and WhatsApp Links
-def encode_response(response):
-    return urllib.parse.quote(response.strip())
-
+# Check if AI response exists
 if st.session_state.ai_response:
-    response_encoded = encode_response(st.session_state.ai_response)
-    telegram_link = f"https://t.me/share/url?url={response_encoded}"
-    whatsapp_link = f"https://api.whatsapp.com/send?text={response_encoded}"
+    # Add the Copy to Clipboard button
+    st_copy_to_clipboard(
+        st.session_state.ai_response,  # Text to copy
+    )
+    st.markdown("---")
 
 
-# Footer with Share Buttons and Feedback Link
-if st.session_state.ai_response:
-    # Encode the response for URL
-    response_encoded = st.session_state.ai_response.replace(" ", "%20")
-
-    # Telegram and WhatsApp Links
-    telegram_link = f"https://t.me/share/url?url={response_encoded}"
-    whatsapp_link = f"https://api.whatsapp.com/send?text={response_encoded}"
-
-    # Display buttons
-    st.markdown(f"""
+    # Feedback Link
+    st.markdown(
+        """
         <div style='text-align: center;'>
-            <a href="{telegram_link}" target="_blank">
-                <button>Send to Telegram</button>
+            <a href="https://leekahhow.notion.site/14ac34bc89df803fbb5fc9b2922a62ea?pvs=105" target="_blank">
+                Provide Feedback
             </a>
-            <a href="{whatsapp_link}" target="_blank">
-                <button>Send to WhatsApp</button>
-            </a>
-            <button onclick="copyToClipboard()">Copy to Clipboard</button>
         </div>
-    """, unsafe_allow_html=True)
-
-    # Add JavaScript to handle copy-to-clipboard functionality
-    st.markdown(copy_to_clipboard_script(st.session_state.ai_response), unsafe_allow_html=True)
-
-# Feedback Link
-st.markdown(
-    """
-    <div style='text-align: center;'>
-        <a href="https://leekahhow.notion.site/14ac34bc89df803fbb5fc9b2922a62ea?pvs=105" target="_blank">
-            Provide Feedback
-        </a>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
+        """, unsafe_allow_html=True
+    )
 
 # Footer with Session ID
 st.markdown(
-    f"<div style='text-align: center; color: grey; font-size: small;'>Session ID: {st.session_state.session_uuid}</div>",
+    f"<div style='text-align: center; color: grey;'>Session ID: {st.session_state.session_uuid}</div>",
     unsafe_allow_html=True
 )
