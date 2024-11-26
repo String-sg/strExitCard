@@ -2,6 +2,7 @@ import streamlit as st
 from groq import Groq
 import os
 import uuid
+from add_ga import inject_ga
 
 # Streamlit page configuration
 st.set_page_config(
@@ -54,9 +55,25 @@ def generate_questions(lesson_text):
     ai_response = response.choices[0].message.content.strip()
     return ai_response
 
-# Button to submit the teacher's input
+# Function to log events to GA
+def log_event_to_ga(input_text):
+    event_script = f"""
+    <script>
+        gtag('event', 'user_input', {{
+            'event_category': 'User Interaction',
+            'event_label': 'Teacher Input',
+            'value': '{input_text}'
+        }});
+    </script>
+    """
+    st.markdown(event_script, unsafe_allow_html=True)
+
+# Modify the button logic to include event tracking
 if st.button("Generate Questions"):
     if st.session_state.teacher_input.strip():
+        # Log the user input to GA
+        log_event_to_ga(st.session_state.teacher_input)
+
         # Generate higher-order thinking questions based on teacher's input
         st.session_state.ai_response = generate_questions(st.session_state.teacher_input)
         st.markdown(f"### Higher-Order Thinking Questions:")
