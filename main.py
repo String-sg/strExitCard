@@ -1,5 +1,6 @@
 import streamlit as st
 from groq import Groq
+import streamlit.components.v1 as components
 from st_copy_to_clipboard import st_copy_to_clipboard
 import urllib.parse
 import os
@@ -14,24 +15,28 @@ st.set_page_config(
 )
 
 
-# Function to inject Google Analytics into index.html
+# Function to inject Google Analytics using st.components.v1.html
 def inject_ga():
-    GA_MEASUREMENT_ID = st.secrets["google_analytics"]["measurement_id"]
+    try:
+        GA_MEASUREMENT_ID = st.secrets["google_analytics"]["measurement_id"]
 
-    # Define the Google Analytics script
-    GA_SCRIPT = f"""
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){{dataLayer.push(arguments);}}
-      gtag('js', new Date());
-      gtag('config', '{GA_MEASUREMENT_ID}');
-    </script>
-    """
+        # Define the Google Analytics script
+        GA_SCRIPT = f"""
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){{dataLayer.push(arguments);}}
+          gtag('js', new Date());
+          gtag('config', '{GA_MEASUREMENT_ID}');
+        </script>
+        """
 
-    # Inject the script dynamically
-    st.markdown(GA_SCRIPT, unsafe_allow_html=True)
+        # Inject the script into the app
+        components.html(GA_SCRIPT, height=0)
+    except KeyError:
+        st.error("Google Analytics measurement ID not found in secrets.")
+
 
 # Inject Google Analytics dynamically
 inject_ga()
@@ -50,22 +55,19 @@ if "session_uuid" not in st.session_state:
     })
 
 
-def log_event_to_ga(input_text):
-    # Sanitize input for JavaScript safety
-    sanitized_input = html.escape(input_text).replace("\n", "\\n").replace("\r", "\\r")
-
-    # Inject a custom Google Analytics event
+def log_event_to_ga(event_name, event_label="", value=""):
     event_script = f"""
     <script>
-        gtag('event', 'user_input', {{
+        gtag('event', '{event_name}', {{
             'event_category': 'User Interaction',
-            'event_label': 'Teacher Input',
-            'value': '{sanitized_input}'
+            'event_label': '{html.escape(event_label)}',
+            'value': '{html.escape(value)}'
         }});
     </script>
     """
-    st.markdown(event_script, unsafe_allow_html=True)
-
+    if not st.session_state.get("ga_event_logged", False):
+        st.markdown(event_script, unsafe_allow_html=True)
+        st.session_state.ga_event_logged = True
 
 
 # Function to display the help modal
