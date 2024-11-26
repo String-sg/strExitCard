@@ -1,3 +1,6 @@
+import pathlib
+import shutil
+from bs4 import BeautifulSoup
 import streamlit as st
 from groq import Groq
 from st_copy_to_clipboard import st_copy_to_clipboard
@@ -13,6 +16,39 @@ st.set_page_config(
     layout="centered"
 )
 
+
+# Function to inject Google Analytics into index.html
+def inject_ga():
+    GA_MEASUREMENT_ID = st.secrets["google_analytics"]["measurement_id"]
+
+    GA_SCRIPT = f"""
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
+    <script id='google_analytics'>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+      gtag('config', '{GA_MEASUREMENT_ID}');
+    </script>
+    """
+
+    index_path = pathlib.Path(st.__file__).parent / "static" / "index.html"
+    soup = BeautifulSoup(index_path.read_text(), features="html.parser")
+
+    if not soup.find(id="google_analytics"):
+        # Backup the original index.html
+        bck_index = index_path.with_suffix('.bck')
+        if not bck_index.exists():
+            shutil.copy(index_path, bck_index)
+        
+        # Inject the GA script into the <head> section
+        html = str(soup)
+        new_html = html.replace('<head>', f'<head>\n{GA_SCRIPT}')
+        index_path.write_text(new_html)
+
+# Inject Google Analytics
+inject_ga()
+
 # Initialize the Groq client
 GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
 os.environ["GROQ_API_KEY"] = GROQ_API_KEY
@@ -26,26 +62,12 @@ if "session_uuid" not in st.session_state:
         "ga_initialized": False
     })
 
-if "ga_initialized" not in st.session_state:
-    st.session_state.ga_initialized = True
-    GA_MEASUREMENT_ID = st.secrets["google_analytics"]["measurement_id"]
-
-    GA_SCRIPT = f"""
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){{dataLayer.push(arguments);}}
-      gtag('js', new Date());
-      gtag('config', '{GA_MEASUREMENT_ID}');
-    </script>
-    """
-    st.markdown(GA_SCRIPT, unsafe_allow_html=True)
-
-
 
 def log_event_to_ga(input_text):
-    sanitized_input = html.escape(input_text)  # Escape special characters
+    # Sanitize the input to prevent breaking JavaScript
+    sanitized_input = html.escape(input_text).replace("\n", "\\n").replace("\r", "\\r")
+    
+    # Inject custom Google Analytics event script
     event_script = f"""
     <script>
         gtag('event', 'user_input', {{
@@ -56,6 +78,7 @@ def log_event_to_ga(input_text):
     </script>
     """
     st.markdown(event_script, unsafe_allow_html=True)
+
 
 # Function to display the help modal
 # @st.dialog("Get Started", width="small")
