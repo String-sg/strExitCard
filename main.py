@@ -26,26 +26,30 @@ if "teacher_input" not in st.session_state:
     st.session_state.teacher_input = ""
 if "ai_response" not in st.session_state:
     st.session_state.ai_response = ""
+if "ga_initialized" not in st.session_state:
+    st.session_state.ga_initialized = True
+    # Inject GA Script
+    st.markdown(GA_SCRIPT, unsafe_allow_html=True)
 
 # Function to display the help modal
-@st.dialog("Get Started", width="small")
-def help_modal():
-    st.write("Not braining today? Type in a simple concept to trigger a list of questions to better frame or close the lesson.")
-    st.markdown("For example:")
-    st.markdown("- *photosynthesis*")
-    st.markdown("- *algebra basics*")
-    st.markdown("- *moments (physics)*")
-    st.markdown("- *acids, salts and bases (chemistry)*")
-    st.markdown("- *price elasticity of demand*")
-    if st.button("Close Help"):
-        st.rerun()  # Close the modal by triggering a script rerun
+# @st.dialog("Get Started", width="small")
+# def help_modal():
+#     st.write("Not braining today? Type in a simple concept to trigger a list of questions to better frame or close the lesson.")
+#     st.markdown("For example:")
+#     st.markdown("- *photosynthesis*")
+#     st.markdown("- *algebra basics*")
+#     st.markdown("- *moments (physics)*")
+#     st.markdown("- *acids, salts and bases (chemistry)*")
+#     st.markdown("- *price elasticity of demand*")
+#     if st.button("Close Help"):
+#         st.rerun()  # Close the modal by triggering a script rerun
 
 # Streamlit Page Title
 st.title("🌟 Situate Learning")
 
-# Help/Get Started Button
-if st.button("Help / Get Started"):
-    help_modal()  # Open the help modal
+# # Help/Get Started Button
+# if st.button("Help / Get Started"):
+#     help_modal()  # Open the help modal
 
 # Teacher input field
 st.markdown("### What did you teach today?")
