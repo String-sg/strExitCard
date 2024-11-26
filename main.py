@@ -1,6 +1,3 @@
-import pathlib
-import shutil
-from bs4 import BeautifulSoup
 import streamlit as st
 from groq import Groq
 from st_copy_to_clipboard import st_copy_to_clipboard
@@ -21,10 +18,11 @@ st.set_page_config(
 def inject_ga():
     GA_MEASUREMENT_ID = st.secrets["google_analytics"]["measurement_id"]
 
+    # Define the Google Analytics script
     GA_SCRIPT = f"""
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
-    <script id='google_analytics'>
+    <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){{dataLayer.push(arguments);}}
       gtag('js', new Date());
@@ -32,21 +30,10 @@ def inject_ga():
     </script>
     """
 
-    index_path = pathlib.Path(st.__file__).parent / "static" / "index.html"
-    soup = BeautifulSoup(index_path.read_text(), features="html.parser")
+    # Inject the script dynamically
+    st.markdown(GA_SCRIPT, unsafe_allow_html=True)
 
-    if not soup.find(id="google_analytics"):
-        # Backup the original index.html
-        bck_index = index_path.with_suffix('.bck')
-        if not bck_index.exists():
-            shutil.copy(index_path, bck_index)
-        
-        # Inject the GA script into the <head> section
-        html = str(soup)
-        new_html = html.replace('<head>', f'<head>\n{GA_SCRIPT}')
-        index_path.write_text(new_html)
-
-# Inject Google Analytics
+# Inject Google Analytics dynamically
 inject_ga()
 
 # Initialize the Groq client
@@ -64,10 +51,10 @@ if "session_uuid" not in st.session_state:
 
 
 def log_event_to_ga(input_text):
-    # Sanitize the input to prevent breaking JavaScript
+    # Sanitize input for JavaScript safety
     sanitized_input = html.escape(input_text).replace("\n", "\\n").replace("\r", "\\r")
-    
-    # Inject custom Google Analytics event script
+
+    # Inject a custom Google Analytics event
     event_script = f"""
     <script>
         gtag('event', 'user_input', {{
@@ -78,6 +65,7 @@ def log_event_to_ga(input_text):
     </script>
     """
     st.markdown(event_script, unsafe_allow_html=True)
+
 
 
 # Function to display the help modal
