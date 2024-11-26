@@ -1,5 +1,6 @@
 import streamlit as st
 from groq import Groq
+import urllib.parse
 import os
 import uuid
 import html
@@ -16,13 +17,14 @@ GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
 os.environ["GROQ_API_KEY"] = GROQ_API_KEY
 client = Groq()
 
-# Initialize Streamlit session states
 if "session_uuid" not in st.session_state:
-    st.session_state.session_uuid = str(uuid.uuid4())
-if "teacher_input" not in st.session_state:
-    st.session_state.teacher_input = ""
-if "ai_response" not in st.session_state:
-    st.session_state.ai_response = ""
+    st.session_state.update({
+        "session_uuid": str(uuid.uuid4()),
+        "teacher_input": "",
+        "ai_response": "",
+        "ga_initialized": False
+    })
+
 if "ga_initialized" not in st.session_state:
     st.session_state.ga_initialized = True
     GA_MEASUREMENT_ID = st.secrets["google_analytics"]["measurement_id"]
@@ -85,20 +87,21 @@ st.session_state.teacher_input = st.text_input(
 # Function to generate higher-order thinking questions based on the lesson
 def generate_questions(lesson_text):
     """Generate higher-order thinking questions using Groq and Llama."""
-    messages = [
-        {"role": "system", "content": "You are an enthusiastic, curious teacher assistant creating thought-provoking questions."},
-        {"role": "user", "content": f"Teacher: {lesson_text} Can you create some engaging, higher-order thinking questions related to this topic? Make sure to include some that are localized to Southeast Asia and relevant to teenagers. Include possible interdisciplinary questions "}
-    ]
-    
-    # Using Groq API with Llama to generate questions
-    response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=messages
-    )
-    
-    # Extract the response from Llama
-    ai_response = response.choices[0].message.content.strip()
-    return ai_response 
+    try:
+        messages = [
+            {"role": "system", "content": "You are an enthusiastic, curious teacher assistant creating thought-provoking questions."},
+            {"role": "user", "content": f"Teacher: {lesson_text} Can you create some engaging, higher-order thinking questions related to this topic? Include interdisciplinary questions."}
+        ]
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=messages
+        )
+        ai_response = response.choices[0].message.content.strip()
+        return ai_response
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        return "Sorry, we couldn't generate questions. Please try again later."
+
 
 # Button to generate questions
 if st.button("Generate Questions"):
@@ -115,23 +118,29 @@ if st.button("Generate Questions"):
 
 # Function to copy response to clipboard
 def copy_to_clipboard_script(response):
+    sanitized_response = html.escape(response)
     return f"""
     <script>
     function copyToClipboard() {{
-        navigator.clipboard.writeText("{response}");
+        navigator.clipboard.writeText("{sanitized_response}");
         alert('Copied to clipboard!');
     }}
     </script>
     """
 
+
 # Share and Feedback Section
 st.markdown("---")
 
 # Telegram and WhatsApp Links
+def encode_response(response):
+    return urllib.parse.quote(response.strip())
+
 if st.session_state.ai_response:
-    response_encoded = st.session_state.ai_response.replace(" ", "%20")
+    response_encoded = encode_response(st.session_state.ai_response)
     telegram_link = f"https://t.me/share/url?url={response_encoded}"
-    whatsapp_link = f"https://api.wt-link?t:<msg-st>/data?"
+    whatsapp_link = f"https://api.whatsapp.com/send?text={response_encoded}"
+
 
 # Footer with Share Buttons and Feedback Link
 if st.session_state.ai_response:
