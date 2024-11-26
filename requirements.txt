@@ -1,4 +1,4 @@
-streamlit==1.26.0
+streamlit==1.40.0
 pandas==2.0.3
 transformers==4.35.0
 peft==0.7.0

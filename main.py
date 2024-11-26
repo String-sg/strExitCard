@@ -4,6 +4,9 @@ import os
 import uuid
 from add_ga import inject_ga
 
+# Add GA
+inject_ga()
+
 # Streamlit page configuration
 st.set_page_config(
     page_title="Situate Learning",
@@ -24,17 +27,29 @@ if "teacher_input" not in st.session_state:
 if "ai_response" not in st.session_state:
     st.session_state.ai_response = ""
 
+# Function to display the help modal
+@st.dialog("Get Started", width="small")
+def help_modal():
+    st.write("Not braining today? Type in a simple concept to trigger a list of questions to better frame or close the lesson.")
+    st.markdown("For example:")
+    st.markdown("- *We learned about photosynthesis today.*")
+    st.markdown("- *The lesson covered algebra basics.*")
+    if st.button("Close Help"):
+        st.rerun()  # Close the modal by triggering a script rerun
+
 # Streamlit Page Title
 st.title("🌟 Situate Learning")
-st.markdown(f"**Session ID:** `{st.session_state.session_uuid}`")
+
+# Help/Get Started Button
+if st.button("Help / Get Started"):
+    help_modal()  # Open the help modal
 
 # Teacher input field
 st.markdown("### What did you teach today?")
-st.session_state.teacher_input = st.text_area(
+st.session_state.teacher_input = st.text_input(
     "Enter today's lesson or topic:",
     value=st.session_state.teacher_input,
-    placeholder="e.g., We learned calculus and first order derivatives today",
-    height=150
+    placeholder="e.g., We learned calculus and first order derivatives today"
 )
 
 # Function to generate higher-order thinking questions based on the lesson
@@ -68,7 +83,7 @@ def log_event_to_ga(input_text):
     """
     st.markdown(event_script, unsafe_allow_html=True)
 
-# Modify the button logic to include event tracking
+# Button to generate questions
 if st.button("Generate Questions"):
     if st.session_state.teacher_input.strip():
         # Log the user input to GA
@@ -80,3 +95,9 @@ if st.button("Generate Questions"):
         st.write(st.session_state.ai_response)
     else:
         st.warning("Please provide a topic or lesson before submitting.")
+
+# Footer with Session ID
+st.markdown(
+    f"<div style='text-align: center; color: grey; font-size: small;'>Session ID: {st.session_state.session_uuid}</div>",
+    unsafe_allow_html=True
+)
