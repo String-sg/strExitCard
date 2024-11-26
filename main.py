@@ -32,8 +32,11 @@ if "ai_response" not in st.session_state:
 def help_modal():
     st.write("Not braining today? Type in a simple concept to trigger a list of questions to better frame or close the lesson.")
     st.markdown("For example:")
-    st.markdown("- *We learned about photosynthesis today.*")
-    st.markdown("- *The lesson covered algebra basics.*")
+    st.markdown("- *photosynthesis*")
+    st.markdown("- *algebra basics*")
+    st.markdown("- *moments (physics)*")
+    st.markdown("- *acids, salts and bases (chemistry)*")
+    st.markdown("- *price elasticity of demand*")
     if st.button("Close Help"):
         st.rerun()  # Close the modal by triggering a script rerun
 
@@ -49,7 +52,7 @@ st.markdown("### What did you teach today?")
 st.session_state.teacher_input = st.text_input(
     "Enter today's lesson or topic:",
     value=st.session_state.teacher_input,
-    placeholder="e.g., We learned calculus and first order derivatives today"
+    placeholder="e.g. photosynthesis or quadratic equations"
 )
 
 # Function to generate higher-order thinking questions based on the lesson
