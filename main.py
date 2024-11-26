@@ -2,10 +2,7 @@ import streamlit as st
 from groq import Groq
 import os
 import uuid
-from add_ga import inject_ga
-
-# Add GA
-inject_ga()
+import html
 
 # Streamlit page configuration
 st.set_page_config(
@@ -28,8 +25,34 @@ if "ai_response" not in st.session_state:
     st.session_state.ai_response = ""
 if "ga_initialized" not in st.session_state:
     st.session_state.ga_initialized = True
-    # Inject GA Script
+    GA_MEASUREMENT_ID = st.secrets["google_analytics"]["measurement_id"]
+
+    GA_SCRIPT = f"""
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+      gtag('config', '{GA_MEASUREMENT_ID}');
+    </script>
+    """
     st.markdown(GA_SCRIPT, unsafe_allow_html=True)
+
+
+
+def log_event_to_ga(input_text):
+    sanitized_input = html.escape(input_text)  # Escape special characters
+    event_script = f"""
+    <script>
+        gtag('event', 'user_input', {{
+            'event_category': 'User Interaction',
+            'event_label': 'Teacher Input',
+            'value': '{sanitized_input}'
+        }});
+    </script>
+    """
+    st.markdown(event_script, unsafe_allow_html=True)
 
 # Function to display the help modal
 # @st.dialog("Get Started", width="small")
@@ -64,7 +87,7 @@ def generate_questions(lesson_text):
     """Generate higher-order thinking questions using Groq and Llama."""
     messages = [
         {"role": "system", "content": "You are an enthusiastic, curious teacher assistant creating thought-provoking questions."},
-        {"role": "user", "content": f"Teacher: {lesson_text} Can you create some engaging, higher-order thinking questions related to this topic? Make sure to include some that are localized to Southeast Asia and relevant to teenagers."}
+        {"role": "user", "content": f"Teacher: {lesson_text} Can you create some engaging, higher-order thinking questions related to this topic? Make sure to include some that are localized to Southeast Asia and relevant to teenagers. Include possible interdisciplinary questions "}
     ]
     
     # Using Groq API with Llama to generate questions
@@ -75,20 +98,7 @@ def generate_questions(lesson_text):
     
     # Extract the response from Llama
     ai_response = response.choices[0].message.content.strip()
-    return ai_response
-
-# Function to log events to GA
-def log_event_to_ga(input_text):
-    event_script = f"""
-    <script>
-        gtag('event', 'user_input', {{
-            'event_category': 'User Interaction',
-            'event_label': 'Teacher Input',
-            'value': '{input_text}'
-        }});
-    </script>
-    """
-    st.markdown(event_script, unsafe_allow_html=True)
+    return ai_response 
 
 # Button to generate questions
 if st.button("Generate Questions"):
@@ -102,6 +112,64 @@ if st.button("Generate Questions"):
         st.write(st.session_state.ai_response)
     else:
         st.warning("Please provide a topic or lesson before submitting.")
+
+# Function to copy response to clipboard
+def copy_to_clipboard_script(response):
+    return f"""
+    <script>
+    function copyToClipboard() {{
+        navigator.clipboard.writeText("{response}");
+        alert('Copied to clipboard!');
+    }}
+    </script>
+    """
+
+# Share and Feedback Section
+st.markdown("---")
+
+# Telegram and WhatsApp Links
+if st.session_state.ai_response:
+    response_encoded = st.session_state.ai_response.replace(" ", "%20")
+    telegram_link = f"https://t.me/share/url?url={response_encoded}"
+    whatsapp_link = f"https://api.wt-link?t:<msg-st>/data?"
+
+# Footer with Share Buttons and Feedback Link
+if st.session_state.ai_response:
+    # Encode the response for URL
+    response_encoded = st.session_state.ai_response.replace(" ", "%20")
+
+    # Telegram and WhatsApp Links
+    telegram_link = f"https://t.me/share/url?url={response_encoded}"
+    whatsapp_link = f"https://api.whatsapp.com/send?text={response_encoded}"
+
+    # Display buttons
+    st.markdown(f"""
+        <div style='text-align: center;'>
+            <a href="{telegram_link}" target="_blank">
+                <button>Send to Telegram</button>
+            </a>
+            <a href="{whatsapp_link}" target="_blank">
+                <button>Send to WhatsApp</button>
+            </a>
+            <button onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Add JavaScript to handle copy-to-clipboard functionality
+    st.markdown(copy_to_clipboard_script(st.session_state.ai_response), unsafe_allow_html=True)
+
+# Feedback Link
+st.markdown(
+    """
+    <div style='text-align: center;'>
+        <a href="https://leekahhow.notion.site/14ac34bc89df803fbb5fc9b2922a62ea?pvs=105" target="_blank">
+            Provide Feedback
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # Footer with Session ID
 st.markdown(
