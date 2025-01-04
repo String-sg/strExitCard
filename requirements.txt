@@ -2,3 +2,8 @@ streamlit
 groq
 st-copy-to-clipboard
 beautifulsoup4
+replit
+replit
+st-star-rating
+psycopg2-binary
+psycopg2-binary

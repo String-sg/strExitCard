@@ -1,4 +1,3 @@
-
 """
 Situate Learning - A Streamlit app that generates higher-order thinking questions
 using Groq's LLM API based on teacher input.
@@ -47,9 +46,13 @@ def generate_questions(lesson_text):
         str: Generated questions from the LLM
     """
     try:
-        system_msg = "You are an enthusiastic, curious teacher assistant creating thought-provoking questions."
-        user_msg = (f"Teacher: {lesson_text} Can you create some engaging, "
-                   "higher-order thinking questions related to this topic? Include interdisciplinary questions.")
+        system_msg = ("You are an enthusiastic, curious teacher assistant "
+                     "creating thought-provoking questions.")
+        user_msg = (
+            f"Teacher: {lesson_text} Can you create some engaging, "
+            "higher-order thinking questions related to this topic? "
+            "Include interdisciplinary questions."
+        )
         messages = [
             {"role": "system", "content": system_msg},
             {"role": "user", "content": user_msg}
@@ -79,9 +82,7 @@ def copy_to_clipboard_script(response):
 def main():
     """Main function to run the Streamlit app."""
     initialize_session_state()
-    
     st.title("🌟 Situate Learning")
-    
     st.markdown("### What did you teach today?")
     st.session_state.teacher_input = st.text_input(
         "Enter today's lesson or topic:",
@@ -91,6 +92,10 @@ def main():
 
     if st.button("Generate Questions"):
         if st.session_state.teacher_input.strip():
+            # Log the search term immediately
+            from database import save_feedback
+            save_feedback(st.session_state.session_uuid, st.session_state.teacher_input)
+            
             st.session_state.ai_response = generate_questions(st.session_state.teacher_input)
             st.markdown("### Higher-Order Thinking Questions:")
             st.write(st.session_state.ai_response)
@@ -101,15 +106,21 @@ def main():
         st_copy_to_clipboard(st.session_state.ai_response)
         st.markdown("---")
         
-        st.markdown(
-            """
-            <div style='text-align: center;'>
-                <a href="https://leekahhow.notion.site/14ac34bc89df803fbb5fc9b2922a62ea?pvs=105" 
-                target="_blank">Provide Feedback</a>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        from streamlit_star_rating import st_star_rating
+        st.markdown("### How helpful were these questions?")
+        stars = st_star_rating("", maxValue=5, defaultValue=5, key="rating")
+        
+        if stars:
+            email = st.text_input("Email (optional)")
+            feedback = st.text_area("Additional comments (optional)")
+            if st.button("Submit"):
+                from database import save_feedback
+                save_feedback(st.session_state.session_uuid, 
+                            st.session_state.teacher_input,
+                            stars,
+                            email,
+                            feedback)
+                st.success("Thanks for your feedback! 🌟")
 
     st.markdown(
         f"<div style='text-align: center; color: grey;'>Session ID: {st.session_state.session_uuid}</div>",
@@ -117,4 +128,6 @@ def main():
     )
 
 if __name__ == "__main__":
+    from database import init_db
+    init_db()
     main()

@@ -22,9 +22,15 @@ class TestMainApp(unittest.TestCase):
 
         # Verify Groq was called with correct parameters
         expected_msg = [
-            {"role": "system", "content": "You are an enthusiastic, curious teacher assistant creating thought-provoking questions."},
-            {"role": "user", "content": "Teacher: test lesson Can you create some engaging, "
-             "higher-order thinking questions related to this topic? Include interdisciplinary questions."}
+            {
+                "role": "system",
+                "content": "You are an enthusiastic, curious teacher assistant creating thought-provoking questions."
+            },
+            {
+                "role": "user",
+                "content": "Teacher: test lesson Can you create some engaging, "
+                          "higher-order thinking questions related to this topic? Include interdisciplinary questions."
+            }
         ]
         mock_groq.return_value.chat.completions.create.assert_called_with(
             model="llama-3.1-8b-instant",
