@@ -11,7 +11,7 @@ from st_copy_to_clipboard import st_copy_to_clipboard
 
 # Streamlit page configuration
 st.set_page_config(
-    page_title="Situate Learning",
+    page_title="Stretch Learning!",
     page_icon="attached_assets/mark_green.png",
     layout="centered"
 )
@@ -86,10 +86,9 @@ def main():
     with col1:
         st.image("attached_assets/mark_green.png", width=50)
     with col2:
-        st.markdown('<h1 style="margin-top: -10px;">Situate Learning</h1>', unsafe_allow_html=True)
-    st.markdown("### What did you teach today?")
+        st.markdown('<h1 style="margin-top: -10px;">Stretch Learning!</h1>', unsafe_allow_html=True)
     st.session_state.teacher_input = st.text_input(
-        "Enter today's lesson or topic:",
+        "Enter a concept you plan to teach to generate open-ended and interdisciplinary questions to stretch learning:",
         value=st.session_state.teacher_input,
         placeholder="e.g. photosynthesis or quadratic equations"
     )
