@@ -1,8 +1,6 @@
 import streamlit as st
 from groq import Groq
-import streamlit.components.v1 as components
 from st_copy_to_clipboard import st_copy_to_clipboard
-import urllib.parse
 import os
 import uuid
 import html
@@ -14,33 +12,6 @@ st.set_page_config(
     layout="centered"
 )
 
-
-# Function to inject Google Analytics using st.components.v1.html
-def inject_ga():
-    try:
-        GA_MEASUREMENT_ID = st.secrets["google_analytics"]["measurement_id"]
-
-        # Define the Google Analytics script
-        GA_SCRIPT = f"""
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){{dataLayer.push(arguments);}}
-          gtag('js', new Date());
-          gtag('config', '{GA_MEASUREMENT_ID}');
-        </script>
-        """
-
-        # Inject the script into the app
-        components.html(GA_SCRIPT, height=0)
-    except KeyError:
-        st.error("Google Analytics measurement ID not found in secrets.")
-
-
-# Inject Google Analytics dynamically
-inject_ga()
-
 # Initialize the Groq client
 GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
 os.environ["GROQ_API_KEY"] = GROQ_API_KEY
@@ -50,24 +21,11 @@ if "session_uuid" not in st.session_state:
     st.session_state.update({
         "session_uuid": str(uuid.uuid4()),
         "teacher_input": "",
-        "ai_response": "",
-        "ga_initialized": False
+        "ai_response": ""
     })
 
 
-def log_event_to_ga(event_name, event_label="", value=""):
-    event_script = f"""
-    <script>
-        gtag('event', '{event_name}', {{
-            'event_category': 'User Interaction',
-            'event_label': '{html.escape(event_label)}',
-            'value': '{html.escape(value)}'
-        }});
-    </script>
-    """
-    if not st.session_state.get("ga_event_logged", False):
-        st.markdown(event_script, unsafe_allow_html=True)
-        st.session_state.ga_event_logged = True
+
 
 
 # Function to display the help modal
@@ -120,9 +78,6 @@ def generate_questions(lesson_text):
 # Button to generate questions
 if st.button("Generate Questions"):
     if st.session_state.teacher_input.strip():
-        # Log the user input to GA
-        log_event_to_ga(st.session_state.teacher_input)
-
         # Generate higher-order thinking questions based on teacher's input
         st.session_state.ai_response = generate_questions(st.session_state.teacher_input)
         st.markdown(f"### Higher-Order Thinking Questions:")
