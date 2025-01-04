@@ -5,6 +5,8 @@ from datetime import datetime
 
 def init_db():
     """Initialize the database and create tables if needed"""
+    conn = None
+    cur = None
     try:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
@@ -26,8 +28,10 @@ def init_db():
     except Exception as e:
         print(f"Database initialization error: {e}")
     finally:
-        cur.close()
-        conn.close()
+        if cur is not None:
+            cur.close()
+        if conn is not None:
+            conn.close()
 
 def save_feedback(session_id, search_term, nps_score=None, email=None, comments=None):
     """Save feedback to PostgreSQL database"""
