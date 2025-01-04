@@ -2,3 +2,5 @@ streamlit
 groq
 st-copy-to-clipboard
 beautifulsoup4
+replit
+replit
