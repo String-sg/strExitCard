@@ -1,8 +1,9 @@
 modules = ["python-3.12"]
-run = "streamlit run main.py"
+run = "streamlit run --server.headless true main.py"
 
 [nix]
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "streamlit run main.py"]
+run = ["sh", "-c", "streamlit run --server.headless true main.py"]
+deploymentTarget = "cloudrun"
