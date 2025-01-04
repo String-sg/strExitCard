@@ -5,3 +5,5 @@ beautifulsoup4
 replit
 replit
 st-star-rating
+psycopg2-binary
+psycopg2-binary
