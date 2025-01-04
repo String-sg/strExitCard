@@ -17,6 +17,7 @@ def init_db():
                 search_term TEXT,
                 nps_score INTEGER,
                 email TEXT,
+                comments TEXT,
                 created_at TIMESTAMP
             )
         ''')
@@ -28,7 +29,7 @@ def init_db():
         cur.close()
         conn.close()
 
-def save_feedback(session_id, search_term, nps_score=None, email=None):
+def save_feedback(session_id, search_term, nps_score=None, email=None, comments=None):
     """Save feedback to PostgreSQL database"""
     try:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
@@ -36,10 +37,10 @@ def save_feedback(session_id, search_term, nps_score=None, email=None):
         
         cur.execute(
             '''
-            INSERT INTO feedback (session_id, search_term, nps_score, email, created_at)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO feedback (session_id, search_term, nps_score, email, comments, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s)
             ''',
-            (session_id, search_term, nps_score, email, datetime.now())
+            (session_id, search_term, nps_score, email, comments, datetime.now())
         )
         
         conn.commit()

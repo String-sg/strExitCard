@@ -118,7 +118,8 @@ def main():
                 save_feedback(st.session_state.session_uuid, 
                             st.session_state.teacher_input,
                             stars,
-                            email)
+                            email,
+                            feedback)
                 st.success("Thanks for your feedback! 🌟")
 
     st.markdown(
