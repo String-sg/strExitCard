@@ -104,16 +104,17 @@ def main():
         
         from streamlit_star_rating import st_star_rating
         st.markdown("### How helpful were these questions?")
-        stars = st_star_rating("Please rate your experience", maxValue=5, defaultValue=3, key="rating")
+        stars = st_star_rating("", maxValue=5, defaultValue=5, key="rating")
         
         if stars:
+            email = st.text_input("Email (optional)")
             feedback = st.text_area("Additional comments (optional)")
             if st.button("Submit"):
                 from database import save_feedback
                 save_feedback(st.session_state.session_uuid, 
                             st.session_state.teacher_input,
                             stars,
-                            feedback)
+                            email)
                 st.success("Thanks for your feedback! 🌟")
 
     st.markdown(
