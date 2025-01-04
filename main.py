@@ -92,6 +92,10 @@ def main():
 
     if st.button("Generate Questions"):
         if st.session_state.teacher_input.strip():
+            # Log the search term immediately
+            from database import save_feedback
+            save_feedback(st.session_state.session_uuid, st.session_state.teacher_input)
+            
             st.session_state.ai_response = generate_questions(st.session_state.teacher_input)
             st.markdown("### Higher-Order Thinking Questions:")
             st.write(st.session_state.ai_response)
