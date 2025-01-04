@@ -12,7 +12,7 @@ from st_copy_to_clipboard import st_copy_to_clipboard
 # Streamlit page configuration
 st.set_page_config(
     page_title="Situate Learning",
-    page_icon="attached_assets/favicon.png",
+    page_icon="🌟",
     layout="centered"
 )
 
@@ -82,8 +82,7 @@ def copy_to_clipboard_script(response):
 def main():
     """Main function to run the Streamlit app."""
     initialize_session_state()
-    st.image("attached_assets/favicon.png", width=50)
-    st.title("Situate Learning")
+    st.title("🌟 Situate Learning")
     st.markdown("### What did you teach today?")
     st.session_state.teacher_input = st.text_input(
         "Enter today's lesson or topic:",
