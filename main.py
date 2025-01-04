@@ -47,9 +47,13 @@ def generate_questions(lesson_text):
         str: Generated questions from the LLM
     """
     try:
-        system_msg = "You are an enthusiastic, curious teacher assistant creating thought-provoking questions."
-        user_msg = (f"Teacher: {lesson_text} Can you create some engaging, "
-                   "higher-order thinking questions related to this topic? Include interdisciplinary questions.")
+        system_msg = ("You are an enthusiastic, curious teacher assistant "
+                     "creating thought-provoking questions.")
+        user_msg = (
+            f"Teacher: {lesson_text} Can you create some engaging, "
+            "higher-order thinking questions related to this topic? "
+            "Include interdisciplinary questions."
+        )
         messages = [
             {"role": "system", "content": system_msg},
             {"role": "user", "content": user_msg}
@@ -79,9 +83,7 @@ def copy_to_clipboard_script(response):
 def main():
     """Main function to run the Streamlit app."""
     initialize_session_state()
-    
     st.title("🌟 Situate Learning")
-    
     st.markdown("### What did you teach today?")
     st.session_state.teacher_input = st.text_input(
         "Enter today's lesson or topic:",
