@@ -82,7 +82,11 @@ def copy_to_clipboard_script(response):
 def main():
     """Main function to run the Streamlit app."""
     initialize_session_state()
-    st.title("🌟 Situate Learning")
+    col1, col2 = st.columns([1, 20])
+    with col1:
+        st.image("attached_assets/favicon.png", width=50)
+    with col2:
+        st.title("Situate Learning")
     st.markdown("### What did you teach today?")
     st.session_state.teacher_input = st.text_input(
         "Enter today's lesson or topic:",
