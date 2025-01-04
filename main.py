@@ -1,4 +1,3 @@
-
 """
 Situate Learning - A Streamlit app that generates higher-order thinking questions
 using Groq's LLM API based on teacher input.
