@@ -102,15 +102,22 @@ def main():
         st_copy_to_clipboard(st.session_state.ai_response)
         st.markdown("---")
         
-        st.markdown(
-            """
-            <div style='text-align: center;'>
-                <a href="https://leekahhow.notion.site/14ac34bc89df803fbb5fc9b2922a62ea?pvs=105" 
-                target="_blank">Provide Feedback</a>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        from streamlit_star_rating import st_star_rating
+        st.markdown("### How helpful were these questions?")
+        rating = st_star_rating(label="", 
+                              maxValue=5,
+                              defaultValue=3,
+                              key="rating")
+        
+        if rating:
+            feedback = st.text_area("Additional comments (optional)")
+            if st.button("Submit"):
+                from database import save_feedback
+                save_feedback(st.session_state.session_uuid, 
+                            st.session_state.teacher_input,
+                            rating,
+                            feedback)
+                st.success("Thanks for your feedback! 🌟")
 
     st.markdown(
         f"<div style='text-align: center; color: grey;'>Session ID: {st.session_state.session_uuid}</div>",
