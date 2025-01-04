@@ -18,9 +18,13 @@ st.set_page_config(
 )
 
 # Initialize the Groq client
-GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
-os.environ["GROQ_API_KEY"] = GROQ_API_KEY
-client = Groq()
+try:
+    GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
+    os.environ["GROQ_API_KEY"] = GROQ_API_KEY
+    client = Groq()
+except Exception as e:
+    st.error("Please set up GROQ_API_KEY in Replit Secrets")
+    st.stop()
 
 def initialize_session_state():
     """Initialize the session state variables."""
