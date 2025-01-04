@@ -12,7 +12,7 @@ from st_copy_to_clipboard import st_copy_to_clipboard
 # Streamlit page configuration
 st.set_page_config(
     page_title="Situate Learning",
-    page_icon="🌟",
+    page_icon="attached_assets/mark_green.png",
     layout="centered"
 )
 
@@ -84,7 +84,7 @@ def main():
     initialize_session_state()
     col1, col2 = st.columns([1, 20])
     with col1:
-        st.image("attached_assets/favicon.png", width=50)
+        st.image("attached_assets/mark_green.png", width=50)
     with col2:
         st.title("Situate Learning")
     st.markdown("### What did you teach today?")
