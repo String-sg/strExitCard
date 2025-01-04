@@ -47,24 +47,20 @@ def generate_questions(lesson_text):
         str: Generated questions from the LLM
     """
     try:
+        system_msg = "You are an enthusiastic, curious teacher assistant creating thought-provoking questions."
+        user_msg = (f"Teacher: {lesson_text} Can you create some engaging, "
+                   "higher-order thinking questions related to this topic? Include interdisciplinary questions.")
         messages = [
-            {
-                "role": "system",
-                "content": "You are an enthusiastic, curious teacher assistant creating thought-provoking questions."
-            },
-            {
-                "role": "user",
-                "content": f"Teacher: {lesson_text} Can you create some engaging, "
-                          "higher-order thinking questions related to this topic? Include interdisciplinary questions."
-            }
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": user_msg}
         ]
         response = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=messages
         )
         return response.choices[0].message.content.strip()
-    except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
+    except ValueError as e:
+        st.error(str(e))
         return "Sorry, we couldn't generate questions. Please try again later."
 
 def copy_to_clipboard_script(response):
