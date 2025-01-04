@@ -109,19 +109,10 @@ def main():
         if stars:
             feedback = st.text_area("Additional comments (optional)")
             if st.button("Submit"):
-                save_feedback(st.session_state.session_uuid, 
-                            st.session_state.teacher_input,
-                            stars,
-                            feedback)
-                st.success("Thanks for your feedback! 🌟")
-        
-        if rating:
-            feedback = st.text_area("Additional comments (optional)")
-            if st.button("Submit"):
                 from database import save_feedback
                 save_feedback(st.session_state.session_uuid, 
                             st.session_state.teacher_input,
-                            rating,
+                            stars,
                             feedback)
                 st.success("Thanks for your feedback! 🌟")
 
