@@ -11,8 +11,8 @@ from st_copy_to_clipboard import st_copy_to_clipboard
 
 # Streamlit page configuration
 st.set_page_config(
-    page_title="Situate Learning",
-    page_icon="🌟",
+    page_title="Stretch Learning!",
+    page_icon="attached_assets/mark_green.png",
     layout="centered"
 )
 
@@ -82,10 +82,13 @@ def copy_to_clipboard_script(response):
 def main():
     """Main function to run the Streamlit app."""
     initialize_session_state()
-    st.title("🌟 Situate Learning")
-    st.markdown("### What did you teach today?")
+    col1, col2 = st.columns([0.15, 0.85])
+    with col1:
+        st.image("attached_assets/mark_green.png", width=50)
+    with col2:
+        st.markdown('<h1 style="margin-top: -10px;">Stretch Learning!</h1>', unsafe_allow_html=True)
     st.session_state.teacher_input = st.text_input(
-        "Enter today's lesson or topic:",
+        "Enter a concept you plan to teach to generate open-ended and interdisciplinary questions to stretch learning:",
         value=st.session_state.teacher_input,
         placeholder="e.g. photosynthesis or quadratic equations"
     )
