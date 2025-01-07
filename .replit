@@ -5,8 +5,9 @@ run = "streamlit run --server.headless true main.py"
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "streamlit run --server.headless true main.py"]
+run = ["sh", "-c", "streamlit run --server.headless true --server.baseUrlPath situatelearning main.py"]
 deploymentTarget = "cloudrun"
+deploymentName = "situatelearning"
 
 [[ports]]
 localPort = 8501
