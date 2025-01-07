@@ -9,7 +9,7 @@ channel = "stable-24_05"
 run = ["sh", "-c", "streamlit run --server.headless true main.py"]
 deploymentTarget = "cloudrun"
 deploymentName = "situatelearning"
-customDomain = "demo.chergpt.sg"
+customDomain = "beta.chergpt.sg"
 
 [[ports]]
 localPort = 8501
