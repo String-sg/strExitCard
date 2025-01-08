@@ -35,6 +35,8 @@ def init_db():
 
 def save_feedback(session_id, search_term, nps_score=None, email=None, comments=None):
     """Save feedback to PostgreSQL database"""
+    conn = None
+    cur = None
     try:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
@@ -48,6 +50,10 @@ def save_feedback(session_id, search_term, nps_score=None, email=None, comments=
         )
         
         conn.commit()
+    except Exception as e:
+        print(f"Error saving feedback: {e}")
     finally:
-        cur.close()
-        conn.close()
+        if cur is not None:
+            cur.close()
+        if conn is not None:
+            conn.close()
