@@ -1,10 +1,7 @@
-[theme]
-base="dark"
-primaryColor="#75F8CC"
-[server]
-headless = true
-baseUrlPath = "situatelearning"
 
 [theme]
 base="dark"
 primaryColor="#75F8CC"
+
+[server]
+headless = true
